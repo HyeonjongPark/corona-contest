@@ -16,8 +16,40 @@ news_list =read.csv("./data/공모전데이터/3-1. NewsList.csv")
 country_code = read.csv("./data/외부데이터/ISO국가코드.csv") # 외부데이터 활용
 
 
-contents = readline("./data/")
-contents
+
+setwd("E:/data-analysis/contest/corona-contest/data/공모전데이터/3-2. Contents/")
+contents = dir()
+
+
+article_point = vector()
+article_list = list()
+for(i in 1:length(contents)) {
+  content = contents[i]
+  content_article = readLines(content, encoding = "UTF-8")
+  article_point = c(article_point, grep("Ariticle : ",content_article)[1])
+
+  article_list[[i]] = content_article[(article_point+1):length(content_article)]
+  print(i)
+  
+  #article_list[[i]][2] = grep(article_list[[i]][1])
+}
+
+article_list2 = list()
+for(i in 1:length(contents)) {
+  article_list2[[i]] = article_list[[i]][str_count(article_list[[i]]) >= 3]
+  print(i)
+}
+
+article_list2[[1]]
+
+
+setwd("E:/data-analysis/contest/corona-contest/")
+
+
+
+
+
+
 
 ############ 데이터 탐색1
 
@@ -55,7 +87,9 @@ roaming2 = merge(roaming1, country_code)
 colSums(is.na(roaming2)) # 통합 후 결측치 없음 확인
 roaming2 = roaming2 %>% arrange(return)
 
-
+roaming2
+getwd()
+write.csv(roaming2, "./data/공모전데이터/파생데이터/roaming2.csv")
 
 ############ 데이터 탐색2
 
@@ -68,11 +102,32 @@ return_count_data1 = roaming2 %>%
   group_by(iso_koeran, return) %>% 
   summarise(sum_count = sum(count))
 
+
+country_name = roaming2$iso_koeran %>% unique()
+
 country_name = "중화인민공화국"
+
+for(i in 1:length(country_name)) {
+  country_name_indi = country_name[i]
+  
+  return_count_data1 %>% filter(iso_koeran == country_name_indi) %>% 
+    ggplot(aes(x = return, y = sum_count)) +
+    geom_line(color = "blue", size = 1) +
+    ggtitle(country_name_indi)
+  
+  ggsave(paste0("E:/data-analysis/contest/corona-contest/visualization/",country_name_indi,".png"))
+}
+
+
+
+
 return_count_data1 %>% filter(iso_koeran == country_name) %>% 
   ggplot(aes(x = return, y = sum_count)) +
   geom_line(color = "blue", size = 1) +
   ggtitle(country_name)
+
+
+
 
 
 # 전체 유입자수 확인
@@ -83,8 +138,9 @@ return_count_data2 = roaming2 %>%
 
 return_count_data2 %>% ggplot(aes(x = return, y = sum_count)) + 
   geom_line(color = "red", size = 1) +
-  ggtitle(country_name)
+  ggtitle("전체 유입자수 확인")
 
+ggsave("./visualization/전체유입자수.png")
 
 
 
