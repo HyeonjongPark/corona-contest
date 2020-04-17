@@ -47,20 +47,35 @@ covid202001 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-
 covid202002 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-02-01" & date < "2020-03-01")
 covid202003 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-03-01" & date < "2020-04-01")
 
+covid20200131 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-01-31" & date < "2020-02-01")
+covid20200229 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-02-29" & date < "2020-03-01")
+covid20200315 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-03-15" & date < "2020-03-16")
+covid20200331 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-03-31" & date < "2020-04-01")
+
+
 covid201912 = paste(covid201912$article, collapse = " ")
 covid202001 = paste(covid202001$article, collapse = " ")
 covid202002 = paste(covid202002$article, collapse = " ")
 covid202003 = paste(covid202003$article, collapse = " ")
 
+covid20200131 = paste(covid20200131$article, collapse = " ")
+covid20200229 = paste(covid20200229$article, collapse = " ")
+covid20200315 = paste(covid20200315$article, collapse = " ")
+covid20200331 = paste(covid20200331$article, collapse = " ")
 
-wordcloud_function = function(dat) {
-  corpus <- VCorpus(VectorSource(dat))
+
+wordcloud_function = function(news, virus_name, start, end) {
+  
+  vir = news %>% filter(virusName == virus_name) %>% filter(date >= start & date < end)
+  vir = paste(vir$article, collapse = " ")
+  
+  corpus <- VCorpus(VectorSource(vir))
   ##Removing Punctuation
   corpus <- tm_map(corpus, content_transformer(removePunctuation))
   ##Removing numbers
   corpus <- tm_map(corpus, removeNumbers)
   ##Converting to lowercase
-  corpus <- tm_map(corpus, content_transformer(tolower))
+  #corpus <- tm_map(corpus, content_transformer(tolower))
   ##Removing stop words
   corpus <- tm_map(corpus, content_transformer(removeWords), stopwords("english"))
   ##Stemming
@@ -88,10 +103,20 @@ wordcloud_function = function(dat) {
   
 }
 
-wordcloud_function(covid202001)
+wordcloud_function(news, "COVID-19", "2020-03-15", "2020-03-31")
 
 
-corpus <- VCorpus(VectorSource(covid202001))
+
+
+
+
+
+
+## 낱개 코드
+
+
+##
+corpus <- VCorpus(VectorSource(covid20200331))
 ##Removing Punctuation
 corpus <- tm_map(corpus, content_transformer(removePunctuation))
 ##Removing numbers
@@ -127,22 +152,8 @@ wordcount = doc_features
 wordcount = as.data.frame(wordcount)
 wordcount = wordcount %>% head(100)
 
+wordcount
 wordcloud2(data=wordcount,fontFamily = '나눔바른고딕', color = "random-light", backgroundColor = "grey")
 
 
-
-covid201912_2 = sapply(covid201912, extractNoun, USE.NAMES = F)
-covid201912_3 = unlist(covid201912_2)
-
-covid201912_4 <- gsub('\\d+','',covid201912_3)
-covid201912_4 <- gsub('-','',covid201912_4)
-covid201912_4 <- gsub('""','',covid201912_4)
-covid201912_4 <- gsub('//.','',covid201912_4)
-
-
-covid201912_4 %>% head(200)
-
-wordcount <- table(covid201912_4)
-wordcount <- head(sort(wordcount,decreasing=T),200)
-wordcount
 
