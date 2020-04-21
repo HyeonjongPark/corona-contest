@@ -16,15 +16,29 @@ library(ggthemes)
 
 setwd("E:/data-analysis/contest/corona-contest/")
 
-news = fread("./data/공모전데이터/파생데이터/newslist.csv")
+news = fread("./data/공모전데이터/파생데이터/newslist.csv", encoding = "UTF-8")
 Encoding(names(news)) = "UTF-8"
 names(news)
+news %>% head
 names(news) = c("fileName", "title", "date", "virusName", "category", "article")
 
 news$date = ymd_hms(news$date)
 
 news %>% str()
 news$virusName %>% table() %>% sort()
+
+
+corona = news %>% filter(virusName == "COVID-19")
+
+aa = str_replace_all(corona$article[1], "[[:punct:]]", "")
+
+str_replace_all(aa, tolower())
+
+str_count(corona$article[1], "Korea")
+
+
+
+str_replace_all(corona$article, tolower())
 
 
 art = news %>% group_by(virusName, date) %>% summarise(art_count = n())
@@ -41,6 +55,9 @@ covid %>% ggplot(aes(x = date, y = art_count)) + geom_bar(stat = "identity", col
 
 covid %>% head()
 covid %>% tail()
+
+covid %>% head
+
 
 covid201912 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2019-12-01" & date < "2020-01-01")
 covid202001 = news %>% filter(virusName == "COVID-19") %>% filter(date >= "2020-01-01" & date < "2020-02-01")
